@@ -21,8 +21,7 @@ namespace fft {
 	}
 	void fft(comp *ar, int p, int mode) { // 1 for normal, -1 for inverse
 		int L = 1 << p;
-		for (int i = 0; i < L; i++)
-			if (cor[i][p] > i) swap(ar[i], ar[cor[i][p]]);
+		for (int i = 0; i < L; i++) if (cor[i][p] > i) swap(ar[i], ar[cor[i][p]]);
 		for (int i = 1; i <= p; i++) {
 			int l = (1 << i);
 			comp base(cos(2*PI/l), mode * sin(2*PI/l));
