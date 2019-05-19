@@ -41,4 +41,4 @@ namespace fft {
     for (l = 1 << l; l >= 0; l--)
       ar[l] = ar[l] * br[l];
   }
-};
+}
