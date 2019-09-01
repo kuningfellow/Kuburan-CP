@@ -1,10 +1,12 @@
+#include<vector>
+#include<queue>
 namespace HopcroftKarp {
   const int maxN = 100001;
   int match[maxN], vis[maxN];
   int total;
-  vector<int> lis[maxN];  // "One sided"
-  vector<int> evalis[maxN];
-  queue<int> eval;
+  std::vector<int> lis[maxN];  // "One sided"
+  std::vector<int> evalis[maxN];
+  std::queue<int> eval;
   void reset(int n) {
     total = 0;
     for (int i = 0; i < n; i++) {
@@ -13,7 +15,7 @@ namespace HopcroftKarp {
       evalis[i].clear();
     }
   }
-  void addedge(int l, int r) {
+  void addEdge(int l, int r) {
     lis[l].push_back(r);
   }
   int augment(int x) {
@@ -30,7 +32,7 @@ namespace HopcroftKarp {
   }
   int run(int l, int r) {
     while (1 < 2) {
-      queue<int> q;
+      std::queue<int> q;
       for (int i = 0; i < l + r; i++) {
         vis[i] = 0;
         evalis[i].clear();
@@ -52,7 +54,6 @@ namespace HopcroftKarp {
         }
       }
       if (eval.empty()) break;
-
       for (int i = 0; i < r; i++) {
         vis[i + l] = 0;
       }

@@ -1,12 +1,11 @@
-namespace aho {
+#include<queue>
+namespace AHOC {
   const int size = 1000005;
   const int sigma = 52;
   int nxt[size][sigma];
   int mark[size], kmp[size], sl[size];
   int gptr;
-  int to(char x) {
-    //zero based char to int mapping function
-  }
+  int to(char x); //zero-based char to int mapper
   void reset() {
     gptr = 0;
     for (int i = 0; i < size; i++) {

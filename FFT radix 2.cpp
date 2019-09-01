@@ -1,8 +1,11 @@
-namespace fft {
-  typedef complex<double> comp;
-  const int maxN = 1 << 17;
+#include<complex>
+namespace FFT {
+  // jangan lupa init()
+  // jangan lupa bagi sama panjang fft
+  typedef std::complex<double> comp;
+  const int maxLogN = 17;
   const double PI = acos(-1);
-  int cor[maxN][18];
+  int cor[1<<maxLogN][maxLogN+1];
   int getpow(int x) {
     int r = 0;
     while ((1 << r) < x) r++;
@@ -15,7 +18,7 @@ namespace fft {
     return r;
   }
   void init() {
-    for (int i = 1; i < 17; i++)
+    for (int i = 1; i < maxLogN; i++)
       for (int j = 0; j < (1 << i); j++)
         cor[j][i] = bitrev(j, i);
   }
@@ -37,8 +40,8 @@ namespace fft {
       }
     }
   }
-  void convolve(comp *ar, comp *br, int l) {
-    for (l = 1 << l; l >= 0; l--)
-      ar[l] = ar[l] * br[l];
+  void convolve(comp *ar, comp *br, int p) {
+    for (p = 1 << p; p >= 0; p--)
+      ar[p] = ar[p] * br[p];
   }
 }
