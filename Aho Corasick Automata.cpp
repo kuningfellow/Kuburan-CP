@@ -5,19 +5,20 @@ namespace AHOC {
   int nxt[size][sigma];
   int mark[size], kmp[size], sl[size];
   int gptr;
-  int to(char x); //zero-based char to int mapper
+  int to(const char x); // zero-based char to int mapper
   void reset() {
     gptr = 0;
     for (int i = 0; i < size; i++) {
       for (int j = 0; j < sigma; j++) nxt[i][j] = -1;
-      mark[i] = kmp[i] = sl[i] = 0;
+      kmp[i] = sl[i] = 0;
+      mark[i] = -1;
     }
   }
-  void fill(int x) {
+  void add(const char *str, int x) {
     int ptr = 0, i = 0;
-    while (str[x][i] != '\0') {
-      // str[x] array of string pattern
-      int t = to(str[x][i]);
+    while (str[i] != '\0') {
+      // str: string pattern
+      int t = to(str[i]);
       if (nxt[ptr][t] == -1)
         nxt[ptr][t] = ++gptr;
       ptr = nxt[ptr][t];
@@ -41,10 +42,25 @@ namespace AHOC {
           while (k != 0 && nxt[k][j] == -1) k = kmp[k];
           if (nxt[k][j] != -1) k = nxt[k][j];
           kmp[nxt[v][j]] = k;
-          sl[nxt[v][j]] = mark[k] ? k : sl[k];
+          sl[nxt[v][j]] = mark[k] != -1 ? k : sl[k];
           q.push(nxt[v][j]);
         }
       }
     }
+  }
+  // returns number of matched strings and marks 'found' array
+  int match(const char *str, int found[]) {
+    int j = 0, ret = 0;
+    for (int i = 0, v; str[i] != '\0'; i++) {
+      v = to(str[i]);
+      while (j != 0 && nxt[j][v] == -1) j = kmp[j];
+      if (nxt[j][v] != -1) j = nxt[j][v];
+      v = j;
+      do {
+        if (mark[v] != -1 && !found[mark[v]])
+          ret += found[mark[v]] = 1;
+      } while (v = sl[v]);
+    }
+    return ret;
   }
 }
