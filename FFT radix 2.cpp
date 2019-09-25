@@ -1,7 +1,6 @@
 #include<complex>
 namespace FFT {
   // jangan lupa init()
-  // jangan lupa bagi sama panjang fft
   typedef std::complex<double> comp;
   const int maxLogN = 17;
   const double PI = acos(-1);
@@ -22,9 +21,11 @@ namespace FFT {
       for (int j = 0; j < (1 << i); j++)
         cor[j][i] = bitrev(j, i);
   }
-  void fft(comp *ar, int p, int mode) { // 1 for normal, -1 for inverse
+  // 2^p >= degree
+  void fft(comp *ar, int p, int mode) {   // 1 for normal, -1 for inverse
     int L = 1 << p;
-    for (int i = 0; i < L; i++) if (cor[i][p] > i) swap(ar[i], ar[cor[i][p]]);
+    for (int i = 0; i < L; i++)
+      if (cor[i][p] > i) swap(ar[i], ar[cor[i][p]]);
     for (int i = 1; i <= p; i++) {
       int l = (1 << i);
       comp base(cos(2*PI/l), mode * sin(2*PI/l));
@@ -39,6 +40,9 @@ namespace FFT {
         cur *= base;
       }
     }
+    if (mode == -1)
+      for (int i = 0; i < L; i++)
+        ar[i].real((ar[i].real() + 0.5) / L);
   }
   void convolve(comp *ar, comp *br, int p) {
     for (p = 1 << p; p >= 0; p--)
