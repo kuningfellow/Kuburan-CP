@@ -25,7 +25,7 @@ namespace SA {
     for (int i = 0; i <= n; i++) ref[i][0] = ref[i][1] = cnt[i] = 0;
     for (int i = 0; i < n; i++) cnt[ord[p - 1][i + h]]++;
     for (int i = 1; i <= n; i++) cnt[i] = cnt[i - 1] + cnt[i];
-    for (int i = 0; i < n; i++) ref[cnt[ord[p - 1][i + h]]--][0] = i;
+    for (int i = n-1; i >= 0; i--) ref[cnt[ord[p - 1][i + h]]--][0] = i;
 
     for (int i = 0; i <= n; i++) cnt[i] = 0;
     for (int i = 0; i < n; i++) cnt[ord[p - 1][i]]++;
@@ -34,7 +34,7 @@ namespace SA {
 
     ord[p][ref[1][1]] = 1;
     for (int i = 2; i <= n; i++) {
-      if (ord[p - 1][ref[i][1]] == ord[p - 1][ref[i - 1][1]] && ord[p - 1][ref[i][1] + h] == ord[p - 1][ref[i - 1][1] + h])
+      if (ord[p-1][ref[i][1]] == ord[p-1][ref[i-1][1]] && ord[p-1][ref[i][1] + h] == ord[p-1][ref[i-1][1] + h])
         ord[p][ref[i][1]] = ord[p][ref[i - 1][1]];
       else
         ord[p][ref[i][1]] = ord[p][ref[i - 1][1]] + 1;
