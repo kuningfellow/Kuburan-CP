@@ -1,18 +1,11 @@
-// Point or vector: pair<TD,TD>
 #include<vector>
+#include<algorithm>
 #include<math.h>
 using namespace std;
-typedef double TD;
+typedef double TD;                // for precision shits
 namespace GEOM {
-  typedef pair<TD,TD> Pt;
+  typedef pair<TD,TD> Pt;         // vector and points
   const TD EPS = 1e-9;
-  TD cross(Pt a, Pt b, Pt c, Pt d) {
-    TD v1 = a.first - b.first;
-    TD v2 = a.second - b.second;
-    TD u1 = c.first - d.first;
-    TD u2 = c.second - d.second;
-    return v1 * u2 - v2 * u1;
-  }
   TD cross(Pt a, Pt b, Pt c) {    // right hand rule
     TD v1 = a.first - c.first;    // (a-c) X (b-c)
     TD v2 = a.second - c.second;
@@ -60,22 +53,27 @@ namespace GEOM {
     }
     return ret;
   }
-  vector<pair<int,TD> > rotateCalipers(const vector<Pt> &points) {
-    int ptr = 0;
+  // set blow=1 to blow candles (minimum calipers)
+  // return (antipodal, distance)
+  vector<pair<int,TD> > rotateCalipers(const vector<Pt> &Pts, int blow = 0) {
+    int ptr = 0, upd = 0;
     vector<pair<int,TD> > ret;
-    for (int i = 0, n = points.size(); i < n; i++) {
-      TD d = -1, tmp;
-      int upd = ptr;
+    for (int i = 0, n = Pts.size(); i < n; i++, upd = ptr) {
+      TD d = -1, tmp, l = dist(Pts[i], Pts[(i+1) % n]);
       for (int j = 0; j < n; j++) {
-        if (d <= (tmp = fabs(cross(points[upd], points[(i+1)%n], points[i])))) {
+        if (d <= (tmp = fabs(cross(Pts[upd], Pts[(i+1)%n], Pts[i]))/l) + EPS) {
           d = tmp;
+          if (blow == 0 && dot(Pts[upd], Pts[(i+1)%n], Pts[i]) >= 0 && 
+              dot(Pts[upd], Pts[(i-1+n)%n], Pts[i]) >= 0) {
+            d = dist(Pts[i], Pts[upd]);
+          }
           upd = (upd + 1) % n;
         } else {
           break;
         }
       }
       ptr = (upd - 1 + n) % n;
-      ret.push_back(pair<int,TD>(upd-1, d/dist(points[(i+1)%n], points[i])));
+      ret.push_back(pair<int,TD>(upd, d));
     }
     return ret;
   }
