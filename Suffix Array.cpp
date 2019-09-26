@@ -1,6 +1,6 @@
 namespace SA {
-  const int N = 1024;     // string length
-  const int logN = 11;
+  const int N = 1 << 17;     // string length
+  const int logN = 17;
   int ord[logN][N];
   int arr[N];
   int cnt[N], ref[N][2];
@@ -22,14 +22,14 @@ namespace SA {
   void radix(int p, int n) {
     int h = (1 << (p - 1));
 
-    for (int i = 0; i <= n; i++) ref[i][0] = ref[i][1] = cnt[i] = 0;
+    for (int i = 0; i <= n*2; i++) ref[i][0] = ref[i][1] = cnt[i] = 0;
     for (int i = 0; i < n; i++) cnt[ord[p - 1][i + h]]++;
-    for (int i = 1; i <= n; i++) cnt[i] = cnt[i - 1] + cnt[i];
+    for (int i = 1; i <= n*2; i++) cnt[i] = cnt[i - 1] + cnt[i];
     for (int i = n-1; i >= 0; i--) ref[cnt[ord[p - 1][i + h]]--][0] = i;
 
-    for (int i = 0; i <= n; i++) cnt[i] = 0;
+    for (int i = 0; i <= n*2; i++) cnt[i] = 0;
     for (int i = 0; i < n; i++) cnt[ord[p - 1][i]]++;
-    for (int i = 1; i <= n; i++) cnt[i] = cnt[i - 1] + cnt[i];
+    for (int i = 1; i <= n*2; i++) cnt[i] = cnt[i - 1] + cnt[i];
     for (int i = n; i > 0; i--) ref[cnt[ord[p - 1][ref[i][0]]]--][1] = ref[i][0];
 
     ord[p][ref[1][1]] = 1;
@@ -46,8 +46,7 @@ namespace SA {
     int L = 1 << (p + 1);
     for (int i = 0; i < L; i++) {
       if (i >= l) ord[0][i] = 0;
-      else if (str[i] == '$') ord[0][i] = 1;
-      else ord[0][i] = str[i] - 'a' + 2;
+      else ord[0][i] = str[i] - 'A' + 1;
     }
     //scale
     for (int i = 0; i < L; i++) cnt[ord[0][i]] = 1;
@@ -61,13 +60,11 @@ namespace SA {
       arr[ord[p][i] - 1] = i;
     }
   }
-  int lcp(int p, int a, int b, int A, int B) {
-    //A string 1 length
-    //B string 1 + 2 length (total length)
+  int lcp(int p, int a, int b) {
     int l = 0;
     for (int i = p; i >= 0; i--) {
       int tl = (1 << i);
-      if (a + tl <= A && b + tl <= B && ord[i][a] == ord[i][b]){
+      if (ord[i][a] == ord[i][b]){
         l += tl;
         a += tl;
         b += tl;
