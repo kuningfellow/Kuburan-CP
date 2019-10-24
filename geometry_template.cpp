@@ -54,39 +54,37 @@ namespace GEOM {
     }
     return ret;
   }
-  // set mod=0 to calculate furthest antipodal
-  // set mod=1 to blow candles (minimum calipers)
+  // set mod=0 to calculate furthest point
+  // set mod=1 to calculate minimum calipers
   // set mod=2 to minimum bounding rectangle
   // return (antipodal, distance)
   vector<pair<int,TD> > rotateCalipers(const vector<Pt> &Pts, int mod = 0) {
     int ptr = 0, upd = 0, P1 = 0, P2 = 0;
     vector<pair<int,TD> > ret;
     for (int i = 0, n = Pts.size(); i < n; i++, upd = ptr) {
-      TD d = -1, d1 = -1, d2 = maxD, tmp, l = dist(Pts[i], Pts[(i+1) % n]);
-      for (int j = 0; j < n; j++) {
-        if (d <= (tmp = fabs(cross(Pts[upd], Pts[(i+1)%n], Pts[i]))/l) + EPS) {
+      TD d = -1, d1 = -1, d2 = maxD, tmp, l = dist(Pts[i],Pts[(i+1)%n]);
+      for (int j = 0; j < n; j++, upd = (upd + 1) % n) {
+        if (mod == 0 && d <= ( tmp = dist(Pts[i],Pts[upd]) ) + EPS) {
           d = tmp;
-          if (mod == 0 && dot(Pts[upd], Pts[(i+1)%n], Pts[i]) >= 0 && 
-              dot(Pts[upd], Pts[(i-1+n)%n], Pts[i]) >= 0)
-            d = dist(Pts[i], Pts[upd]);
-          upd = (upd + 1) % n;
+        } else if (mod && d <= ( tmp = fabs(cross(Pts[upd],Pts[(i+1)%n],Pts[i]))/l ) + EPS) {
+          d = tmp;
         } else {
           break;
         }
       }
       ptr = (upd - 1 + n) % n;
       if (mod == 2) {
-        while (d1 <= (tmp = dot(Pts[P1], Pts[(i+1)%n], Pts[i])/l) + EPS)
+        while (d1 <= ( tmp = dot(Pts[P1],Pts[(i+1)%n],Pts[i])/l ) + EPS)
           d1 = tmp, P1 = (P1 + 1) % n;
         P1 = (P1 - 1 + n) % n;
         if (i == 0) P2 = P1;
-        while (d2 >= (tmp = dot(Pts[P2], Pts[(i+1) % n], Pts[i])/l) - EPS)
+        while (d2 >= ( tmp = dot(Pts[P2],Pts[(i+1)%n],Pts[i])/l ) - EPS)
           d2 = tmp, P2 = (P2 + 1) % n;
         P2 = (P2 - 1 + n) % n;
         d = (d + (d1 - d2)) * 2;    // untuk keliling
         // d = (d * (d1 - d2));        // untuk luas
       }
-      ret.push_back(pair<int,TD>(upd, d));
+      ret.push_back(pair<int,TD>(ptr, d));
     }
     return ret;
   }
