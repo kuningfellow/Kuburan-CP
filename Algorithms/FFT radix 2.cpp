@@ -1,31 +1,19 @@
 #include<complex>
 namespace FFT {
-  // jangan lupa init()
   typedef std::complex<double> comp;
-  const int maxLogN = 17;
   const double PI = acos(-1);
-  int cor[1<<maxLogN][maxLogN+1];
   int getpow(int x) {
     int r = 0;
     while ((1 << r) < x) r++;
     return r;
   }
-  int bitrev(int x, int n) {
-    int r = 0;
-    for (int i = 0; i < n; i++, x >>= 1)
-      r <<= 1, r |= (x & 1);
-    return r;
-  }
-  void init() {
-    for (int i = 1; i < maxLogN; i++)
-      for (int j = 0; j < (1 << i); j++)
-        cor[j][i] = bitrev(j, i);
-  }
   // 2^p >= degree
-  void fft(comp *ar, int p, int mode) {   // 1 for normal, -1 for inverse
+  void fft(comp *ar, int p, int mode) {  // 1 for normal, -1 for inverse
     int L = 1 << p;
-    for (int i = 0; i < L; i++)
-      if (cor[i][p] > i) swap(ar[i], ar[cor[i][p]]);
+    for (int i=0, x=0, j=0; i < L; i++, x=i, j=0) {
+      for (int k = 0; k < p; k++, x>>=1) j=j<<1|x&1;
+      if (j > i) swap(ar[i], ar[j]);
+    }
     for (int i = 1; i <= p; i++) {
       int l = (1 << i);
       comp base(cos(2*PI/l), mode * sin(2*PI/l));
