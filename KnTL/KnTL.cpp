@@ -1,6 +1,13 @@
 //usr/bin/g++ -std=c++11 $0 -o ~/bin/CP ; [ "$1" == "-r" ] && rm ~/bin/CP ; exit
 
-#define reset "\033[0m"
+#include<string>
+#include<string.h>
+#include<iostream>
+#include<stdio.h>
+#include<chrono>
+using namespace std;
+
+const char *reset = "\033[0m";
 #define black "\033[0;30m"
 #define BLACK "\033[1;30m"
 #define red "\033[0;31m"
@@ -18,18 +25,17 @@
 #define white "\033[0;37m"
 #define WHITE "\033[1;37m"
 
-#include<string>
-#include<string.h>
-#include<iostream>
-#include<stdio.h>
-#include<chrono>
-using namespace std;
-
 char str[50005];
 char *arg;
+string GPP = "g++ -std=c++11";
 string cpp = "";
 string exe = "";
 string tmpile = "..cpp";
+#ifdef __linux__
+string cls = "clear";
+#elif _WIN32 || _WIN64
+string cls = "cls";
+#endif
 int compiled = 0;
 
 void transpile() {
@@ -45,12 +51,13 @@ void transpile() {
   fclose(in);
   fclose(out);
 }
+#ifdef __linux__
 int compile(int m = 0) {
   system(("[ -e \"" + exe + "\" ] && rm \"" + exe + "\"").c_str());
   compiled = 0;
   transpile();
   int ret = system((
-    "g++ -std=c++11 \"" + tmpile + "\" -o \"" + exe + "\"" +
+    GPP + " \"" + tmpile + "\" -o \"" + exe + "\"" +
     (m?"":" && echo -e \\\e[1m\\\e[32mCOMPILATION SUCCESSFUL")
   ).c_str());
   if (ret == 0) compiled = 1;
@@ -72,6 +79,49 @@ void run(string args = "", int m = 0) {
 void paste() {
   system("xclip -o > IN");
 }
+#elif _WIN32 || _WIN64
+int compile(int m = 0) {
+  system(("IF EXIST \"" + exe + "\" ( del \"" + exe + ".exe\" )").c_str());
+  compiled = 0;
+  transpile();
+  int ret = system((
+    GPP + " \"" + tmpile + "\" -o \"" + exe + "\"" +
+    (m?"":" && echo \e[1m\e[32mCOMPILATION SUCCESSFUL")
+  ).c_str());
+  if (ret == 0) compiled = 1;
+  if (ret || !m) scanf("%[^\n]", str), getchar();
+  return ret;
+}
+void run(string args = "", int m = 0) {
+  if (m == 1 && compile(1)) return;
+  auto start = std::chrono::high_resolution_clock::now();
+  system((
+    "\"" + exe + "\"" + args + " || echo \e[1m\e[31mRUNTIME ERROR"
+  ).c_str());
+  auto finish = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> elapsed = finish - start;
+  fflush(stdout);
+  cout << reset << "Runtime: " << green << elapsed.count() << reset << " s\n";
+  scanf("%[^\n]", str), getchar();
+}
+#include<windows.h>
+void paste() {
+  FILE * inFile = fopen("IN", "w");
+  HANDLE clip;
+  if (OpenClipboard(NULL)) {
+    clip = GetClipboardData(CF_TEXT);
+    unsigned int i = 0;
+    while (((char*)clip)[i] != 0) {
+      if (((char*)clip)[i] != '\r') {
+        fprintf(inFile, "%c", ((char*)clip)[i]);
+      }
+      i++;
+    }
+    CloseClipboard();
+  }
+  fclose(inFile);
+}
+#endif
 bool init(char *argv) {
   arg = argv;
   for (int i = 0; argv[i] != '\0'; i++) {
@@ -80,17 +130,19 @@ bool init(char *argv) {
     cpp += argv[i];
   }
   if (cpp.length() < 4 || cpp.substr(cpp.length() - 4) != ".cpp") return false;
+#ifdef __linux__
   if (cpp[0] != '/') exe = "./";
+#endif
   exe += cpp.substr(0, cpp.length() - 4);
   return true;
 }
 
 int main(int argc, char *argv[]) {
-  if (argc != 2 || !init(argv[1])) {
+  if (argc == 1 || !init(argv[1])) {
     printf("Please provide a cpp file\n");
-  } else {
+  } else if (argc == 2) {
     compile(1);
-    system("clear");
+    system(cls.c_str());
     while (1 < 2) {
       printf("%s[%s%s%s]\n", reset, YELLOW, argv[1], reset);
       printf("%s1%s:exe ", compiled?GREEN:"", reset);
@@ -112,11 +164,36 @@ int main(int argc, char *argv[]) {
       } else if (!strcmp(str, "c")) compile();
       else if (!strcmp(str, "C")) run(" < IN", 1);
       else if (!strcmp(str, "q")) {
+#ifdef __linux__
         system(("rm " + tmpile).c_str());
+#elif _WIN32 || _WIN64
+        system(("del " + tmpile).c_str());
+#endif
         break;
       }
-      system("clear");
+      system(cls.c_str());
     }
+  } else if (argc == 3) {
+    for (int i = 0; argv[2][i] != '\0'; i++) {
+      system(cls.c_str());
+      printf("%s[%s%s%s]\n", reset, YELLOW, argv[1], reset);
+      if (argv[2][i] == 'c') {
+        compile();
+      } else if (argv[2][i] == 'i') {
+        run(" < IN");
+      } else if (argv[2][i] == 'I') {
+        run(" < IN", 1);
+      } else if (argv[2][i] == 'r') {
+        run();
+      } else if (argv[2][i] == 'R') {
+        run("", 1);
+      } else {
+        printf("Invalid usage %c\n", argv[2][i]);
+        break;
+      }
+    }
+  } else {
+    printf("Invalid parameter count\n");
   }
   return 0;
 }
