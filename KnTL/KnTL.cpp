@@ -179,18 +179,25 @@ int main(int argc, char *argv[]) {
       printf("%s[%s%s%s]\n", reset, YELLOW, argv[1], reset);
       if (argv[2][i] == 'c') {
         compile();
-      } else if (argv[2][i] == 'i') {
-        run(" < IN");
-      } else if (argv[2][i] == 'I') {
-        run(" < IN", 1);
       } else if (argv[2][i] == 'r') {
         run();
       } else if (argv[2][i] == 'R') {
         run("", 1);
+      } else if (argv[2][i] == 'i') {
+        run(" < IN");
+      } else if (argv[2][i] == 'I') {
+        run(" < IN", 1);
+      } else if (argv[2][i] == 'h' || argv[2][i] == 'H') {
+        printf("usage:\nc -> compile\nr -> run\nR -> compile and run\ni -> run with IN\nI -> compile and run with IN\nh -> show help\nNote: commands can be combined\n");
       } else {
         printf("Invalid usage %c\n", argv[2][i]);
         break;
       }
+#ifdef __linux__
+      system(("rm " + tmpile).c_str());
+#elif _WIN32 || _WIN64
+      system(("del " + tmpile).c_str());
+#endif
     }
   } else {
     printf("Invalid parameter count\n");
