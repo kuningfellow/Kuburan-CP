@@ -194,9 +194,9 @@ int main(int argc, char *argv[]) {
         break;
       }
 #ifdef __linux__
-      system(("rm " + tmpile).c_str());
+      system(("[ -e \"" + exe + "\" ] && rm \"" + exe + "\"").c_str());
 #elif _WIN32 || _WIN64
-      system(("del " + tmpile).c_str());
+      system(("IF EXIST \"" + exe + "\" ( del \"" + exe + ".exe\" )").c_str());
 #endif
     }
   } else {
