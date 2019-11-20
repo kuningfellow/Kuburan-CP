@@ -1,11 +1,19 @@
 KnTL: Kompile 'n Terminal Launch
 
-Usage: kntl [cpp_file]
+Installation:
+compile "KnTL.cpp"
 
-Notes:
-Location for IN and OUT files are in the working directory
-A converted .cpp file in your working directory will be temporarily created for compiling
-To use colored debug, just put
+Commands: <kntl_executable> <cpp_file> [crRpP]
+  explanation:
+    [crRpP] optional
+    - c = compile
+    - r = run
+    - R = compile and run
+    - p = run with IN
+    - P = compile and run with IN
+
+Usage:
+put
 #define DEBUG(...)
-in your source code (the spaces must exact)
+stdout generated from DEBUG() will be colored for easier debugging
 Now everything you say and do, it all sparkles so brightly
